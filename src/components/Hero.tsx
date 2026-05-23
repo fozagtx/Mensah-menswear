@@ -20,16 +20,11 @@ export default function Hero({ imageUrl }: HeroProps) {
       <div className="container hero-content">
         <span className="hero-eyebrow">New Collection</span>
         <h1 className="hero-title">
-          Where Tradition
-          <br />
-          Meets Precision
+          With 500 cedis, you become that dream man and woman they fight for.
         </h1>
         <p className="hero-text">
           Curated menswear for the modern West African gentleman. 
           Tailored garments that command presence in every room.
-        </p>
-        <p className="hero-fomo">
-          With 500 cedis, you become that dream man and woman they fight for.
         </p>
         <div className="hero-actions">
           <a href="#shop" className="btn-primary">
