@@ -123,6 +123,7 @@ POST /api/baskets
 **Type:** `BasketCreateRequest` → `BasketCreateResponse`
 
 On success, the app constructs a WhatsApp message from the order and redirects to `wa.me` with the merchant's phone number.
+Because the Mensah API currently returns an empty `whatsapp_number`, the storefront falls back to `+233500861334`.
 
 ---
 

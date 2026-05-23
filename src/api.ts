@@ -1,5 +1,6 @@
 const API_BASE = "/api";
 export const MERCHANT_SLUG = "mensah";
+export const MENSAH_WHATSAPP_FALLBACK = "+233500861334";
 
 export interface MerchantDetail {
   id: string;
@@ -161,7 +162,13 @@ export function formatPrice(minor: number, currency: string): string {
 }
 
 function cleanWhatsAppNumber(whatsappNumber: string): string {
-  return whatsappNumber.replace(/\D/g, "");
+  const digits = whatsappNumber.replace(/\D/g, "");
+
+  if (digits.length === 10 && digits.startsWith("0")) {
+    return `233${digits.slice(1)}`;
+  }
+
+  return digits;
 }
 
 export function getWhatsAppWebUrl(

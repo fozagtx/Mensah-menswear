@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   api,
   MERCHANT_SLUG,
+  MENSAH_WHATSAPP_FALLBACK,
   buildWhatsAppMessage,
   getWhatsAppDeepLink,
   getWhatsAppWebUrl,
@@ -69,7 +70,7 @@ export default function CheckoutModal({
       onClearCart();
       onClose();
 
-      const wa = whatsappNumber || "233557654321";
+      const wa = whatsappNumber || MENSAH_WHATSAPP_FALLBACK;
       window.location.href = getWhatsAppDeepLink(wa, message);
 
       window.setTimeout(() => {
