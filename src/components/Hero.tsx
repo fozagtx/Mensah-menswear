@@ -28,6 +28,9 @@ export default function Hero({ imageUrl }: HeroProps) {
           Curated menswear for the modern West African gentleman. 
           Tailored garments that command presence in every room.
         </p>
+        <p className="hero-fomo">
+          For only 500 cedis, step out as that classic gentleman before the next drop moves.
+        </p>
         <div className="hero-actions">
           <a href="#shop" className="btn-primary">
             Shop Collection

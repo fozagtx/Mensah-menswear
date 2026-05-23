@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   api,
   getApiAssetUrl,
@@ -21,6 +21,9 @@ export interface CartItem {
 }
 
 const STYLE_PREFERENCE_KEY = "mensah_style_preference";
+const BROWSE_ASSIST_SESSION_KEY = "mensah_browse_assist_status";
+const BROWSE_ASSIST_SUBMISSIONS_KEY = "mensah_browse_assist_requests";
+const BROWSE_ASSIST_DELAY_MS = 2 * 60 * 1000;
 
 const preferenceOptions: {
   value: OccasionFilter;
@@ -74,6 +77,13 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState<ItemResponse | null>(null);
   const [stylePreference, setStylePreference] = useState<OccasionFilter>("all");
   const [preferenceOpen, setPreferenceOpen] = useState(false);
+  const [browseAssistOpen, setBrowseAssistOpen] = useState(false);
+  const [browsePreference, setBrowsePreference] = useState("");
+  const [browsePhone, setBrowsePhone] = useState("");
+  const browseAssistBlockedRef = useRef(true);
+  const browseActiveMsRef = useRef(0);
+  const browseLastTickRef = useRef(Date.now());
+  const browseSignalRef = useRef(false);
 
   useEffect(() => {
     const savedPreference = window.localStorage.getItem(STYLE_PREFERENCE_KEY);
@@ -142,6 +152,124 @@ export default function App() {
   const cartCount = cart.reduce((sum, ci) => sum + ci.qty, 0);
   const heroImageUrl = campaigns[0]?.image_urls?.[0] ?? items[0]?.image_urls?.[0] ?? null;
   const aboutImageItem = items[1] ?? items[0] ?? null;
+  const browseAssistBlocked =
+    loading ||
+    cartCount > 0 ||
+    cartOpen ||
+    checkoutOpen ||
+    Boolean(selectedItem) ||
+    preferenceOpen ||
+    browseAssistOpen;
+
+  useEffect(() => {
+    browseAssistBlockedRef.current = browseAssistBlocked;
+  }, [browseAssistBlocked]);
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      window.sessionStorage.setItem(BROWSE_ASSIST_SESSION_KEY, "carted");
+      setBrowseAssistOpen(false);
+    }
+  }, [cartCount]);
+
+  useEffect(() => {
+    if (window.sessionStorage.getItem(BROWSE_ASSIST_SESSION_KEY)) {
+      return;
+    }
+
+    const markBrowseActivity = () => {
+      browseSignalRef.current = true;
+    };
+
+    const updateLastTick = () => {
+      browseLastTickRef.current = Date.now();
+      if (document.visibilityState === "visible") {
+        markBrowseActivity();
+      }
+    };
+
+    updateLastTick();
+
+    const intervalId = window.setInterval(() => {
+      const now = Date.now();
+      const elapsed = now - browseLastTickRef.current;
+      browseLastTickRef.current = now;
+
+      if (
+        document.visibilityState === "visible" &&
+        browseSignalRef.current &&
+        !browseAssistBlockedRef.current
+      ) {
+        browseActiveMsRef.current += elapsed;
+      }
+
+      if (
+        browseActiveMsRef.current >= BROWSE_ASSIST_DELAY_MS &&
+        !browseAssistBlockedRef.current &&
+        !window.sessionStorage.getItem(BROWSE_ASSIST_SESSION_KEY)
+      ) {
+        setBrowseAssistOpen(true);
+        window.clearInterval(intervalId);
+      }
+    }, 1000);
+
+    window.addEventListener("scroll", markBrowseActivity, { passive: true });
+    window.addEventListener("pointerdown", markBrowseActivity);
+    window.addEventListener("keydown", markBrowseActivity);
+    window.addEventListener("touchstart", markBrowseActivity, { passive: true });
+    document.addEventListener("visibilitychange", updateLastTick);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("scroll", markBrowseActivity);
+      window.removeEventListener("pointerdown", markBrowseActivity);
+      window.removeEventListener("keydown", markBrowseActivity);
+      window.removeEventListener("touchstart", markBrowseActivity);
+      document.removeEventListener("visibilitychange", updateLastTick);
+    };
+  }, []);
+
+  const dismissBrowseAssist = () => {
+    window.sessionStorage.setItem(BROWSE_ASSIST_SESSION_KEY, "dismissed");
+    setBrowseAssistOpen(false);
+  };
+
+  const submitBrowseAssist = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const preference = browsePreference.trim();
+    if (!preference) {
+      return;
+    }
+
+    const request = {
+      preference,
+      phone: browsePhone.trim(),
+      submittedAt: new Date().toISOString(),
+    };
+
+    let savedRequests: unknown = [];
+    try {
+      savedRequests = JSON.parse(
+        window.localStorage.getItem(BROWSE_ASSIST_SUBMISSIONS_KEY) ?? "[]",
+      );
+    } catch {
+      savedRequests = [];
+    }
+
+    const nextRequests = Array.isArray(savedRequests)
+      ? [...savedRequests, request]
+      : [request];
+
+    window.localStorage.setItem(
+      BROWSE_ASSIST_SUBMISSIONS_KEY,
+      JSON.stringify(nextRequests),
+    );
+    window.sessionStorage.setItem(BROWSE_ASSIST_SESSION_KEY, "submitted");
+    setBrowsePreference("");
+    setBrowsePhone("");
+    setBrowseAssistOpen(false);
+  };
 
   if (loading) {
     return (
@@ -301,6 +429,76 @@ export default function App() {
           onClearCart={() => setCart([])}
           whatsappNumber={merchant?.whatsapp_number ?? ""}
         />
+      )}
+
+      {browseAssistOpen && cartCount === 0 && (
+        <div className="modal-overlay browse-assist-overlay" onClick={dismissBrowseAssist}>
+          <div
+            className="modal-content browse-assist-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="browse-assist-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              onClick={dismissBrowseAssist}
+              aria-label="Keep browsing"
+            >
+              ×
+            </button>
+
+            <span className="section-kicker">Mensah Style Concierge</span>
+            <h2 id="browse-assist-title" className="browse-assist-title">
+              You've been here for a while. Are we missing what you want?
+            </h2>
+            <p className="browse-assist-copy">
+              Tell us the exact look, fabric, size, or occasion you had in mind.
+              A Mensah stylist can use it to guide what comes next.
+            </p>
+
+            <form className="browse-assist-form" onSubmit={submitBrowseAssist}>
+              <div className="form-group">
+                <label htmlFor="browse-preference">What are you looking for?</label>
+                <textarea
+                  id="browse-preference"
+                  value={browsePreference}
+                  onChange={(event) => setBrowsePreference(event.target.value)}
+                  placeholder="A linen set for a beach wedding, a black kaftan in XL..."
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="browse-phone">
+                  Phone number <span className="optional-label">(optional)</span>
+                </label>
+                <input
+                  id="browse-phone"
+                  type="tel"
+                  value={browsePhone}
+                  onChange={(event) => setBrowsePhone(event.target.value)}
+                  placeholder="+233 ..."
+                  autoComplete="tel"
+                />
+              </div>
+
+              <div className="browse-assist-actions">
+                <button type="submit" className="btn-primary">
+                  Send preference
+                </button>
+                <button
+                  type="button"
+                  className="browse-assist-dismiss"
+                  onClick={dismissBrowseAssist}
+                >
+                  Keep browsing
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {preferenceOpen && !loading && (

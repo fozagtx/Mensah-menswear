@@ -5,6 +5,13 @@ interface FooterProps {
   merchant: MerchantDetail | null;
 }
 
+const SOCIAL_LINKS = {
+  instagram: "https://www.instagram.com/mensahgh/",
+  tiktok: "https://www.tiktok.com/@mensahgh",
+  maps: "https://www.google.com/maps/search/?api=1&query=Mensah%20menswear%20Accra%20Ghana",
+  mapsEmbed: "https://www.google.com/maps?q=Mensah%20menswear%20Accra%20Ghana&output=embed",
+};
+
 export default function Footer({ merchant }: FooterProps) {
   const [mailingListOpen, setMailingListOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -69,9 +76,19 @@ export default function Footer({ merchant }: FooterProps) {
 
             <div className="footer-links">
               <h4>Contact</h4>
-              <p>Accra, Ghana</p>
+              <a href={SOCIAL_LINKS.maps} target="_blank" rel="noreferrer">
+                Accra, Ghana
+              </a>
               <p>info@mensahgh.com</p>
-              <p>+233 00 000 0000</p>
+              <p>+233 50 086 1334</p>
+              <div className="footer-socials" aria-label="Mensah social links">
+                <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noreferrer">
+                  Instagram
+                </a>
+                <a href={SOCIAL_LINKS.tiktok} target="_blank" rel="noreferrer">
+                  TikTok
+                </a>
+              </div>
             </div>
 
             <div className="footer-links">
@@ -80,6 +97,19 @@ export default function Footer({ merchant }: FooterProps) {
               <p>Sat: 10AM – 5PM</p>
               <p>Sun: Closed</p>
             </div>
+          </div>
+
+          <div className="footer-map">
+            <div>
+              <h4>Location</h4>
+              <p>View Mensah on Google Maps.</p>
+            </div>
+            <iframe
+              title="Mensah location on Google Maps"
+              src={SOCIAL_LINKS.mapsEmbed}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
 
           <div className="footer-bottom">
