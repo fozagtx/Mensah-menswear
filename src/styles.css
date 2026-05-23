@@ -288,6 +288,26 @@ input, textarea {
   gap: 24px;
 }
 
+.hero-actions .btn-primary {
+  background: var(--color-white);
+  color: var(--color-black);
+  border-color: var(--color-white);
+}
+
+.hero-actions .btn-primary:hover {
+  background: transparent;
+  color: var(--color-white);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.hero-actions .btn-link {
+  color: var(--color-white);
+}
+
+.hero-actions .btn-link:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 /* --- Buttons --- */
 .btn-primary {
   display: inline-flex;
