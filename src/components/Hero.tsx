@@ -20,7 +20,7 @@ export default function Hero({ imageUrl }: HeroProps) {
       <div className="container hero-content">
         <span className="hero-eyebrow">New Collection</span>
         <h1 className="hero-title">
-          With 500 cedis, you become that dream man and woman they fight for.
+          With 500 cedis, you become that dream man they fight for.
         </h1>
         <p className="hero-text">
           Curated menswear for the modern West African gentleman. 
