@@ -1,0 +1,108 @@
+%% Miro-ready user flow styled with the provided minimal menswear design system.
+%% Sharp edges, restrained neutrals, Lato typography, and product-first hierarchy.
+%% Paste/import this Mermaid into Miro; do not rename the project from this file.
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: Lato, ui-sans-serif, system-ui, sans-serif
+    primaryColor: "#ffffff"
+    primaryTextColor: "#5F5953"
+    primaryBorderColor: "#1E1C1A"
+    lineColor: "#1E1C1A"
+    secondaryColor: "#F3F2F1"
+    tertiaryColor: "#ffffff"
+    background: "#ffffff"
+    mainBkg: "#ffffff"
+    clusterBkg: "#F3F2F1"
+    clusterBorder: "#1E1C1A"
+    edgeLabelBackground: "#ffffff"
+    noteBkgColor: "#F3F2F1"
+    noteTextColor: "#5F5953"
+    noteBorderColor: "#1E1C1A"
+---
+flowchart TD
+  Start([Visitor lands on Mensah storefront])
+
+  Start --> LoadData[Load merchant, in-stock items, and campaigns]
+  LoadData --> LoadOK{Data loaded?}
+  LoadOK -- No --> ErrorState[Show error screen]
+  LoadOK -- Yes --> Home[Show header, hero, collection, campaigns, about, footer]
+
+  Home --> Browse[Browse collection]
+  Home --> Campaigns[View active campaigns]
+  Campaigns --> Browse
+  Home --> About[Read House of Mensah section]
+  About --> Browse
+
+  Browse --> Filter{Choose price filter?}
+  Filter -- All --> ProductList[Show matching products]
+  Filter -- Under GHS 1,000 --> ProductList
+  Filter -- GHS 1,000-2,000 --> ProductList
+  Filter -- Over GHS 2,000 --> ProductList
+  ProductList --> EmptyFilter{Any products found?}
+  EmptyFilter -- No --> NoItems[Show no items found message]
+  NoItems --> Browse
+  EmptyFilter -- Yes --> ProductDecision{Product action}
+
+  ProductDecision -- Quick View --> ProductModal[Open product detail modal]
+  ProductModal --> ModalAdd[Add item to cart]
+  ProductModal --> CloseModal[Close modal]
+  CloseModal --> ProductList
+
+  ProductDecision -- Add to Cart --> AddCart[Add item to cart]
+  ModalAdd --> CartOpen[Open cart drawer]
+  AddCart --> CartOpen
+
+  CartOpen --> CartState{Cart empty?}
+  CartState -- Yes --> EmptyCart[Show empty cart and continue shopping]
+  EmptyCart --> Browse
+  CartState -- No --> ReviewCart[Review cart items and total]
+
+  ReviewCart --> CartAction{Cart action}
+  CartAction -- Increase quantity --> UpdateQty[Update item quantity]
+  CartAction -- Decrease quantity --> QtyZero{Quantity becomes zero?}
+  QtyZero -- Yes --> RemoveItem[Remove item from cart]
+  QtyZero -- No --> UpdateQty
+  CartAction -- Remove item --> RemoveItem
+  UpdateQty --> ReviewCart
+  RemoveItem --> CartOpen
+
+  CartAction -- Continue shopping --> Browse
+  CartAction -- Proceed to checkout --> Checkout[Open checkout modal]
+
+  Checkout --> EnterCustomer[Enter full name, phone, optional instructions]
+  EnterCustomer --> Validate{Required fields present?}
+  Validate -- No --> FormError[Show validation error]
+  FormError --> EnterCustomer
+
+  Validate -- Yes --> CreateBasket[POST /api/baskets]
+  CreateBasket --> BasketOK{Basket created?}
+  BasketOK -- No --> CheckoutError[Show placement error]
+  CheckoutError --> EnterCustomer
+
+  BasketOK -- Yes --> BuildMessage[Build WhatsApp order summary]
+  BuildMessage --> ClearCart[Clear cart and close checkout]
+  ClearCart --> WhatsApp[Open WhatsApp chat with merchant]
+  WhatsApp --> MerchantFollowup([Merchant continues order conversation])
+
+  subgraph API["Backend/API integration"]
+    LoadData -.-> GetMerchant[GET /api/merchants/mensah]
+    LoadData -.-> GetItems[GET /api/merchants/mensah/items]
+    LoadData -.-> GetCampaigns[GET /api/merchants/mensah/campaigns]
+    CreateBasket -.-> PostBasket[POST /api/baskets]
+  end
+
+  classDef startEnd fill:#1E1C1A,color:#ffffff,stroke:#1E1C1A,stroke-width:1px
+  classDef screen fill:#ffffff,color:#5F5953,stroke:#1E1C1A,stroke-width:1px
+  classDef decision fill:#F3F2F1,color:#5F5953,stroke:#1E1C1A,stroke-width:1px
+  classDef action fill:#ffffff,color:#5F5953,stroke:#67785d,stroke-width:1px
+  classDef error fill:#ffffff,color:#5F5953,stroke:#c6512c,stroke-width:1px
+  classDef api fill:#F3F2F1,color:#5F5953,stroke:#1E1C1A,stroke-width:1px,stroke-dasharray:4 4
+
+  class Start,MerchantFollowup startEnd
+  class Home,Browse,ProductList,ProductModal,CartOpen,ReviewCart,Checkout,EnterCustomer,WhatsApp screen
+  class LoadOK,Filter,EmptyFilter,ProductDecision,CartState,CartAction,QtyZero,Validate,BasketOK decision
+  class LoadData,Campaigns,About,ModalAdd,CloseModal,AddCart,EmptyCart,UpdateQty,RemoveItem,CreateBasket,BuildMessage,ClearCart action
+  class ErrorState,NoItems,FormError,CheckoutError error
+  class GetMerchant,GetItems,GetCampaigns,PostBasket api
