@@ -8,7 +8,7 @@ import {
 } from "./api";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-import ProductGrid from "./components/ProductGrid";
+import ProductGrid, { type OccasionFilter } from "./components/ProductGrid";
 import Campaigns from "./components/Campaigns";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
@@ -18,6 +18,47 @@ export interface CartItem {
   item: ItemResponse;
   qty: number;
   note: string;
+}
+
+const STYLE_PREFERENCE_KEY = "mensah_style_preference";
+
+const preferenceOptions: {
+  value: OccasionFilter;
+  title: string;
+  copy: string;
+}[] = [
+  {
+    value: "party",
+    title: "Party person",
+    copy: "Polished evening looks, dinners, and standout arrivals.",
+  },
+  {
+    value: "summer",
+    title: "Summer person",
+    copy: "Light, breathable pieces for warm days and easy movement.",
+  },
+  {
+    value: "beach",
+    title: "Beach vacation",
+    copy: "Relaxed outing styles for travel, resorts, and waterfront plans.",
+  },
+  {
+    value: "programs",
+    title: "Programs",
+    copy: "Dress-ready outfits for ceremonies, visits, and formal gatherings.",
+  },
+  {
+    value: "afropop",
+    title: "Afro pop",
+    copy: "Culture-forward looks with color, rhythm, and weekend energy.",
+  },
+];
+
+function isOccasionFilter(value: string | null): value is OccasionFilter {
+  return (
+    value === "all" ||
+    preferenceOptions.some((option) => option.value === value)
+  );
 }
 
 export default function App() {
@@ -31,8 +72,17 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItemResponse | null>(null);
+  const [stylePreference, setStylePreference] = useState<OccasionFilter>("all");
+  const [preferenceOpen, setPreferenceOpen] = useState(false);
 
   useEffect(() => {
+    const savedPreference = window.localStorage.getItem(STYLE_PREFERENCE_KEY);
+    if (isOccasionFilter(savedPreference)) {
+      setStylePreference(savedPreference);
+    } else {
+      setPreferenceOpen(true);
+    }
+
     async function load() {
       try {
         const storefront = await api.getMensahStorefront();
@@ -47,6 +97,15 @@ export default function App() {
     }
     load();
   }, []);
+
+  const choosePreference = (preference: OccasionFilter) => {
+    setStylePreference(preference);
+    window.localStorage.setItem(STYLE_PREFERENCE_KEY, preference);
+    setPreferenceOpen(false);
+    window.setTimeout(() => {
+      document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
 
   const addToCart = (item: ItemResponse) => {
     setCart((prev) => {
@@ -120,6 +179,7 @@ export default function App() {
             </p>
             <ProductGrid
               items={items}
+              preferredOccasion={stylePreference}
               onSelect={(item) => setSelectedItem(item)}
               onAddToCart={addToCart}
             />
@@ -241,6 +301,52 @@ export default function App() {
           onClearCart={() => setCart([])}
           whatsappNumber={merchant?.whatsapp_number ?? ""}
         />
+      )}
+
+      {preferenceOpen && !loading && (
+        <div className="modal-overlay preference-overlay" onClick={() => choosePreference("all")}>
+          <div
+            className="modal-content preference-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              onClick={() => choosePreference("all")}
+              aria-label="Close preference modal"
+            >
+              ×
+            </button>
+
+            <span className="section-kicker">Mensah Style Concierge</span>
+            <h2 className="preference-title">What are you buying for?</h2>
+            <p className="preference-copy">
+              Choose a style lane and we will tune the collection around your first browse.
+              You can still change filters anytime.
+            </p>
+
+            <div className="preference-options">
+              {preferenceOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className="preference-option"
+                  onClick={() => choosePreference(option.value)}
+                >
+                  <span>{option.title}</span>
+                  <small>{option.copy}</small>
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="preference-skip"
+              onClick={() => choosePreference("all")}
+            >
+              Browse everything
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -394,12 +394,70 @@ input, textarea {
   border-bottom: 1px solid var(--color-gray-200);
 }
 
+/* --- Style Library Search --- */
+.style-library-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+}
+
+.section-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--color-gray-500);
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.style-library-search h3 {
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 26.25px;
+  color: var(--color-gray-900);
+}
+
+.style-search-field {
+  display: grid;
+  gap: 8px;
+}
+
+.style-search-field span {
+  color: var(--color-gray-500);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.style-search-field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-white);
+  color: var(--color-gray-900);
+}
+
+.style-search-field input:focus {
+  outline: none;
+  border-color: var(--color-black);
+}
+
 /* --- Filter Bar --- */
 .filter-bar {
   display: flex;
   gap: 6px;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
+}
+
+.occasion-filter-bar {
+  margin-bottom: 8px;
 }
 
 .filter-btn {
@@ -505,6 +563,23 @@ input, textarea {
   font-weight: 400;
   line-height: 21px;
   color: var(--color-gray-900);
+}
+
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.product-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 8px;
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-gray-500);
+  font-size: 11px;
+  text-transform: capitalize;
 }
 
 .product-price {
@@ -901,6 +976,85 @@ input, textarea {
   gap: 20px;
 }
 
+/* --- Preference Modal --- */
+.preference-overlay {
+  align-items: center;
+}
+
+.preference-modal {
+  width: min(100%, 760px);
+  padding: 40px;
+  border-color: rgba(30, 28, 26, 0.18);
+}
+
+.preference-title {
+  max-width: 520px;
+  margin-bottom: 14px;
+  color: var(--color-gray-900);
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.preference-copy {
+  max-width: 560px;
+  margin-bottom: 28px;
+  color: var(--color-gray-500);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.preference-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.preference-option {
+  display: grid;
+  gap: 8px;
+  min-height: 112px;
+  padding: 18px;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-white);
+  color: var(--color-gray-900);
+  text-align: left;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.preference-option:hover {
+  border-color: var(--color-black);
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+.preference-option span {
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.preference-option small {
+  color: var(--color-gray-500);
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.preference-option:hover small {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.preference-skip {
+  margin-top: 20px;
+  color: var(--color-gray-500);
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.preference-skip:hover {
+  color: var(--color-black);
+}
+
 /* --- Cart Drawer --- */
 .drawer-backdrop {
   position: fixed;
@@ -1288,6 +1442,14 @@ input, textarea {
 
   .checkout-modal {
     padding: 28px;
+  }
+
+  .preference-modal {
+    padding: 28px;
+  }
+
+  .preference-options {
+    grid-template-columns: 1fr;
   }
 
   .shop-section {
