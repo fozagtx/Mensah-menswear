@@ -216,13 +216,14 @@ input, textarea {
 
 .hero-image {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: min(56vw, 960px);
   height: 100%;
-  object-fit: cover;
-  object-position: center 36%;
-  transform: scale(0.88);
-  transform-origin: center center;
+  object-fit: contain;
+  object-position: right center;
 }
 
 .hero-overlay {
@@ -1526,8 +1527,9 @@ input, textarea {
   }
 
   .hero-image {
-    object-position: center 32%;
-    transform: scale(0.92);
+    width: 100%;
+    object-position: center bottom;
+    opacity: 0.82;
   }
 
   .hero-content {

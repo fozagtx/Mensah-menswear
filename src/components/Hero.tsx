@@ -29,7 +29,7 @@ export default function Hero({ imageUrl }: HeroProps) {
           Tailored garments that command presence in every room.
         </p>
         <p className="hero-fomo">
-          For only 500 cedis, step out as that classic gentleman before the next drop moves.
+          With 500 cedis, you become that dream man and woman they fight for.
         </p>
         <div className="hero-actions">
           <a href="#shop" className="btn-primary">
