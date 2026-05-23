@@ -220,10 +220,10 @@ input, textarea {
   right: 0;
   bottom: 0;
   left: auto;
-  width: min(56vw, 960px);
+  width: min(58vw, 1080px);
   height: 100%;
-  object-fit: contain;
-  object-position: right center;
+  object-fit: cover;
+  object-position: center center;
 }
 
 .hero-overlay {

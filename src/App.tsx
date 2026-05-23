@@ -24,6 +24,7 @@ const STYLE_PREFERENCE_KEY = "mensah_style_preference";
 const BROWSE_ASSIST_SESSION_KEY = "mensah_browse_assist_status";
 const BROWSE_ASSIST_SUBMISSIONS_KEY = "mensah_browse_assist_requests";
 const BROWSE_ASSIST_DELAY_MS = 2 * 60 * 1000;
+const HERO_ITEM_ID = "outfit-5";
 
 const preferenceOptions: {
   value: OccasionFilter;
@@ -150,7 +151,8 @@ export default function App() {
     0,
   );
   const cartCount = cart.reduce((sum, ci) => sum + ci.qty, 0);
-  const heroImageUrl = campaigns[0]?.image_urls?.[0] ?? items[0]?.image_urls?.[0] ?? null;
+  const heroImageItem = items.find((item) => item.id === HERO_ITEM_ID) ?? items[0] ?? null;
+  const heroImageUrl = heroImageItem?.image_urls?.[0] ?? campaigns[0]?.image_urls?.[0] ?? null;
   const aboutImageItem = items[1] ?? items[0] ?? null;
   const browseAssistBlocked =
     loading ||

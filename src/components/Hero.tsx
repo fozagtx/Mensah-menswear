@@ -14,6 +14,8 @@ export default function Hero({ imageUrl }: HeroProps) {
           className="hero-image"
           src={heroImageUrl}
           alt="Mensah collection"
+          loading="eager"
+          decoding="sync"
         />
       )}
       <div className="hero-overlay" />
